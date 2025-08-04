@@ -164,21 +164,22 @@
     }
 
     async function sendMessage() {
-      const name = nameInput.value.trim();
-      const text = messageInput.value.trim();
-      if (!name || !text) return;
+  const name = nameInput.value.trim();
+  const text = messageInput.value.trim();
+  if (!name || !text) return;
 
-      currentUserName = name;
+  currentUserName = name;
 
-      const { error } = await client
-        .from('messages')
-        .insert([{ name, text }]);
+  const { error } = await client
+    .from('messages')
+    .insert([{ name, text }]);
 
-      if (error) {
-        alert("😢 Send failed!\n\n" + error.message);
-      } else {
-        messageInput.value = '';
-      }
+  if (error) {
+    alert("😢 Send failed!\n\n" + error.message);
+  } else {
+    messageInput.value = '';
+    loadMessages();  // 👈 Force refresh after sending
+  }
     }
 
     function startEdit(p, id) {
@@ -267,14 +268,17 @@
     }
 
     function startRealtime() {
-      client
-        .channel('realtime:public:messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-          addMessageToDOM(payload.new);
-          messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        })
-        .subscribe();
-    }
+  client
+    .channel('realtime:public:messages')
+    .on('postgres_changes', {
+      event: '*',  // 👈 INSERT + UPDATE + DELETE
+      schema: 'public',
+      table: 'messages'
+    }, payload => {
+      loadMessages();  // 👈 Keep UI in sync
+    })
+    .subscribe();
+}
   </script>
 </body>
 </html>
