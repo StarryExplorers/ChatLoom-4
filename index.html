@@ -81,7 +81,7 @@
   </div>
 
   <div id="chat">
-    <h2>🌟 ChatLoom <button id="clearChatBtn" onclick="clearChat()">🔌 Clear Chat</button></h2>
+    <h2>🌟 ChatLoom <button id="clearChatBtn" onclick="clearChat()">Clear Chat</button></h2>
     <div id="messages"></div>
     <div id="inputRow">
       <input type="text" id="nameInput" placeholder="Your name..." />
@@ -236,36 +236,37 @@
     }
 
     async function clearChat() {
-      const confirmClear = confirm("Are you sure you want to delete all messages?");
-      if (!confirmClear) return;
+  const confirmClear = confirm("Are you sure you want to delete all messages?");
+  if (!confirmClear) return;
 
-      const { data, error: fetchError } = await client
-        .from('messages')
-        .select('id');
+  const { data, error: fetchError } = await client
+    .from('messages')
+    .select('id');
 
-      if (fetchError) {
-        alert("Fetch failed!\n\n" + fetchError.message);
-        return;
-      }
+  if (fetchError) {
+    alert("Fetch failed!\n\n" + fetchError.message);
+    return;
+  }
 
-      const idsToDelete = data.map(msg => msg.id);
+  const idsToDelete = data.map(msg => msg.id);
 
-      if (idsToDelete.length === 0) {
-        alert("Nothing to clear!");
-        return;
-      }
+  if (idsToDelete.length === 0) {
+    alert("Nothing to clear!");
+    return;
+  }
 
-      const { error: deleteError } = await client
-        .from('messages')
-        .delete()
-        .in('id', idsToDelete);
+  const { error: deleteError } = await client
+    .from('messages')
+    .delete()
+    .in('id', idsToDelete);
 
-      if (deleteError) {
-        alert("Clear failed!\n\n" + deleteError.message);
-      } else {
-        loadMessages();
-      }
-    }
+  if (deleteError) {
+    alert("Clear failed!\n\n" + deleteError.message);
+  } else {
+    loadMessages();
+  }
+}
+
 
     function startRealtime() {
   client
